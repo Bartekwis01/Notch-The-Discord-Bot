@@ -32,11 +32,11 @@ Additionally, you need to provide the bot with the following using the .env file
 >
 > USERNAME_CHANNEL_ID - specify the channel ID of the channel where users will post their minecraft usernames
 > 
-> WHITELIST_PATH - specify the path where the whitelist file will be saved(for duplicate-prevention)
+> WHITELIST_PATH - specify the path where the whitelist file will be saved(for duplicate-prevention). Do NOT confuse it with the `whitelist.json` file created and used by the Minecraft server - these are completely separate
 > 
 > DISCORD_IDS_PATH - specify the path where the discord IDs should be saved of the members which minecraft usernames are successfully added to the whitelist(for multi-accounting prevention)
 > 
-> LOGGING_LEVEL - specify the logging level to be used
+> LOGGING_LEVEL - specify the logging level to be used. Available levels: debug, info, warning, error
 > 
 > RCON_HOST - specify the IP of the Minecraft server
 > 
@@ -44,7 +44,7 @@ Additionally, you need to provide the bot with the following using the .env file
 > 
 > RCON_PASSWORD - specify the password of the Minecraft server's remote console
 
-An `example.env` file has been included
+An example `.env` file has been included
 
 Lastly, make sure that your server has the AuthME plugin installed in order for the account creation with random passwords to work
 
