@@ -144,7 +144,7 @@ def add_to_whitelist(discord_member, minecraft_username):
     #check if it's a duplicate
     handler(f'Checking if {discord_member} has already added a username to the whitelist', "debug")
     if discord_id in discord_ids:
-        raise DuplicateDiscordError(f'{discord_member} has already added a username to the whitelist', "debug")
+        raise DuplicateDiscordError(f'{discord_member} has already added a username to the whitelist')
     handler(f'{discord_member} has not added a username to the whitelist', "debug")
 
     handler(f'Checking if {minecraft_username} is already in the whitelist', "debug")
