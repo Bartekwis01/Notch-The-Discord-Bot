@@ -1,0 +1,4 @@
+colorlog
+discord.py
+python-dotenv
+mcrcon
