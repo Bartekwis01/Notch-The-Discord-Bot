@@ -24,6 +24,7 @@ LOGGING_LEVEL_ENV = os.getenv('LOGGING_LEVEL').upper()
 RCON_HOST = (os.getenv('RCON_HOST'))
 RCON_PORT = int(os.getenv('RCON_PORT'))
 RCON_PASSWORD = os.getenv('RCON_PASSWORD')
+WHITELISTED_ROLE = os.getenv('WHITELISTED_ROLE')
 
 LOG_LEVEL = getattr(logging, LOGGING_LEVEL_ENV, logging.INFO)  # fallback to INFO
 
@@ -265,6 +266,13 @@ async def on_message(message):
             handler(f'Couldn\'t change the nickname of {discord_member} to {minecraft_username}', "error")
             await thread.send(f'Nie udało się zmienić nicku **{discord_member}** na **{minecraft_username}**! Skontaktuj się z Administratorem podając kod błędu: 403 Forbidden.')
             return
+        handler(f'Adding the whitelisted role to {discord_member}', "debug")
+        try:
+            role = discord.utils.get(discord_member.guild.roles, name=WHITELISTED_ROLE)
+            await discord_member.add_roles(role)
+            handler(f'Successfully added the role {role} to {discord_member}', "debug")
+        except:
+            handler(f'Couldn\'t add the role to {discord_member}!', "error")
 
     finally:
         await bot.process_commands(message)
