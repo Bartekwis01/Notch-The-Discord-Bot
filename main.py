@@ -9,20 +9,26 @@ import colorlog
 from mcrcon import MCRcon
 import secrets
 import string
+from datetime import datetime
 
 load_dotenv()
 
+LOGS_DIRECTORY = 'logs'
+DATA_DIRECTORY = 'data'
 DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
 USERNAME_CHANNEL = int(os.getenv('USERNAME_CHANNEL_ID'))
-DISCORD_IDS_PATH = os.getenv('DISCORD_IDS_PATH')
-WHITELIST_PATH = os.getenv('WHITELIST_PATH')
+DISCORD_IDS_PATH = os.path.join(DATA_DIRECTORY, os.getenv('DISCORD_IDS_PATH'))
+WHITELIST_PATH = os.path.join(DATA_DIRECTORY, os.getenv('WHITELIST_PATH'))
 ALLOWED_CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_"
 LOGGING_LEVEL_ENV = os.getenv('LOGGING_LEVEL').upper()
-RCON_HOST = os.getenv('RCON_HOST')
-RCON_PORT = os.getenv('RCON_PORT')
+RCON_HOST = (os.getenv('RCON_HOST'))
+RCON_PORT = int(os.getenv('RCON_PORT'))
 RCON_PASSWORD = os.getenv('RCON_PASSWORD')
 
 LOG_LEVEL = getattr(logging, LOGGING_LEVEL_ENV, logging.INFO)  # fallback to INFO
+
+os.makedirs(LOGS_DIRECTORY, exist_ok=True)
+os.makedirs(DATA_DIRECTORY, exist_ok=True)
 
 formatter = logging.Formatter(
     "[%(asctime)s] [%(levelname)s] %(name)s: %(message)s",
@@ -46,7 +52,7 @@ bot_logger = logging.getLogger("bot")
 bot_logger.setLevel(LOG_LEVEL)
 
 #file
-bot_file_handler = logging.FileHandler("bot.log", encoding="utf-8", mode="w")
+bot_file_handler = logging.FileHandler(os.path.join(LOGS_DIRECTORY, "bot.log"), encoding="utf-8", mode="a")
 bot_file_handler.setFormatter(formatter)
 bot_logger.addHandler(bot_file_handler)
 
@@ -60,7 +66,7 @@ discord_logger = logging.getLogger("discord")
 discord_logger.setLevel(LOG_LEVEL)
 
 #file
-discord_file_handler = logging.FileHandler("discord.log", encoding="utf-8", mode="w")
+discord_file_handler = logging.FileHandler(os.path.join(LOGS_DIRECTORY, "discord.log"), encoding="utf-8", mode="a")
 discord_file_handler.setFormatter(formatter)
 discord_logger.addHandler(discord_file_handler)
 
@@ -78,6 +84,8 @@ def handler(message, tier="info"):
         bot_logger.warning(message)
     if tier == "error":
         bot_logger.error(message)
+
+handler(f'===================={datetime.today().strftime("%Y/%m/%d %H:%M:%S")}====================')
 
 handler(f'Loading the bot...')
 
@@ -174,8 +182,8 @@ def add_to_whitelist(discord_member, minecraft_username):
     handler(response, "info")
     handler(f'Generating a password for {minecraft_username}', "debug")
     random_password = password_generator()
-    handler(f'Executing /authme register {minecraft_username} [redacted_password]', "debug")
-    response = mcrcon.command(f'/authme register {minecraft_username} {random_password}')
+    handler(f'Executing /auth register {minecraft_username} [redacted_password]', "debug")
+    response = mcrcon.command(f'/auth register {minecraft_username} {random_password}')
     handler(response, "info")
     handler(f'Disconnecting from RCON', "debug")
     mcrcon.disconnect()
@@ -223,33 +231,39 @@ async def on_message(message):
             password = add_to_whitelist(discord_member, minecraft_username)
             await thread.send(f'Dodano **{minecraft_username}** do whitelisty!')
             await discord_member.send(f'Aby zalogować się na swoje konto serwerowe, użyj komendy `/login {password}`. Możesz zmienić hasło używając komendy `/changepassword {password} <nowe hasło>` po zalogowaniu.')
+            await message.add_reaction("✅")
         except DuplicateDiscordError:
             handler(f'{discord_member} has already added a username to the whitelist')
             await thread.send(f'Istnieje już nick na whitelist powiązany z kontem **{discord_member}**!')
+            await message.add_reaction("❌")
             return
         except DuplicateMinecraftError:
             handler(f'{discord_member} has been already added to the whitelist')
             await thread.send(f'**{minecraft_username}** został już dodany do whitelisty!')
+            await message.add_reaction("❌")
             return
         except TooLongError:
             handler(f'{minecraft_username[:64]} is too long and is invalid')
             await thread.send(f'Nick **{minecraft_username[:64]}** jest za długi i nie prawidłowy!')
+            await message.add_reaction("❌")
             return
         except InvalidCharactersError:
             handler(f'{minecraft_username} contains invalid characters')
             await thread.send(f'Nick **{minecraft_username[:64]}** zawiera nieprawidłowe znaki!')
+            await message.add_reaction("❌")
             return
         except FailedRCONError:
             await thread.send(f'Nie udało się dodać nicku do whitelisty! Skontaktuj się z Administratorem podając kod błędu: `FailedRCONError`')
+            await message.add_reaction("❌")
             return
 
         handler(f'Changing the username of {discord_member} to {minecraft_username}', "debug")
         try:
             await message.author.edit(nick=minecraft_username)
             handler(f'Successfully changed the nickname of {discord_member} to {minecraft_username}')
-        except PermissionError:
-            handler(f'Couldn\'t change the nickname of {discord_member} to {minecraft_username} because of permission error', "error")
-            await thread.send(f'Nie udało się zmienić nicku **{discord_member}** na **{minecraft_username}**! Skontaktuj się z Administratorem podając kod błędu: FailedRCONError.')
+        except:
+            handler(f'Couldn\'t change the nickname of {discord_member} to {minecraft_username}', "error")
+            await thread.send(f'Nie udało się zmienić nicku **{discord_member}** na **{minecraft_username}**! Skontaktuj się z Administratorem podając kod błędu: 403 Forbidden.')
             return
 
     finally:
