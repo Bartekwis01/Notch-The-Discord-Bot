@@ -132,6 +132,7 @@ def save_file(path, data):
         handler(f'{path} already exists, overwriting', "debug")
     else:
         handler(f"{path} doesn't exist, creating", "debug")
+        os.makedirs(DATA_DIRECTORY, exist_ok=True)
     with open(path, 'w') as f:
         json.dump(data, f)
         handler(f'{path} saved')
@@ -195,7 +196,7 @@ def add_to_whitelist(discord_member, minecraft_username):
     handler(f'Added {minecraft_username} to whitelist file')
     handler(f'Adding Discord ID {discord_id} of {discord_member} to {DISCORD_IDS_PATH} file', "debug")
     discord_ids.append(discord_id)
-    handler(f'Added Discord ID {discord_id}) of {discord_member} to {DISCORD_IDS_PATH} file', "debug")
+    handler(f'Added Discord ID {discord_id} of {discord_member} to {DISCORD_IDS_PATH} file', "debug")
 
     handler(f'Saving the files', "debug")
     save_file(DISCORD_IDS_PATH, discord_ids)
@@ -257,14 +258,14 @@ async def on_message(message):
             await thread.send(f'Nie udało się dodać nicku do whitelisty! Skontaktuj się z Administratorem podając kod błędu: `FailedRCONError`')
             await message.add_reaction("❌")
             return
-
-        handler(f'Changing the username of {discord_member} to {minecraft_username}', "debug")
+        newnick=f'{discord_member.name[:15]}|{minecraft_username}'
+        handler(f'Changing the username of {discord_member} to {newnick}', "debug")
         try:
-            await message.author.edit(nick=minecraft_username)
-            handler(f'Successfully changed the nickname of {discord_member} to {minecraft_username}')
+            await message.author.edit(nick=newnick)
+            handler(f'Successfully changed the nickname of {discord_member} to {newnick}')
         except:
-            handler(f'Couldn\'t change the nickname of {discord_member} to {minecraft_username}', "error")
-            await thread.send(f'Nie udało się zmienić nicku **{discord_member}** na **{minecraft_username}**! Skontaktuj się z Administratorem podając kod błędu: 403 Forbidden.')
+            handler(f'Couldn\'t change the nickname of {discord_member} to {newnick}', "error")
+            await thread.send(f'Nie udało się zmienić nicku **{discord_member}** na **{newnick}**! Skontaktuj się z Administratorem podając kod błędu: 403 Forbidden.')
             return
         handler(f'Adding the whitelisted role to {discord_member}', "debug")
         try:
