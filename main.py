@@ -135,7 +135,7 @@ def save_file(path, data):
         os.makedirs(DATA_DIRECTORY, exist_ok=True)
     with open(path, 'w') as f:
         json.dump(data, f)
-        handler(f'{path} saved')
+        handler(f'{path} saved', "debug")
 
 def password_generator(size=16):
     alphabet = string.ascii_letters + string.digits
