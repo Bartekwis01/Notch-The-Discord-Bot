@@ -1,10 +1,10 @@
 # Notch the discord bot
 
-Simple-ish Discord bot that monitors a configured channel for member messages and if a message that contains a valid Minecraft username is sent it uses RCON to add the specified username to the server whitelist and creates an account via the AuthMe plugin with a secure, random password that is sent to the user via a Discord DM.
+Simple-ish Discord bot that monitors a configured channel and adds the posted usernames to a minecraft server's whitelist as well as creates an AuthME account for that user and sends a randomly generated password to the user via a DM. Additionally, it performs a series of checks to ensure that the username is valid and not a duplicate.
 
 ## Why
 
-This bot is useful for automatically adding users to the whitelist without the need of admin intervention. It's primary use case is private Minecraft SMP's that are running in offline mode. This bot saves the time of admins and ensures that no one is able to break into someone's else's account in the gap between adding an account to the whitelist and the account owner joining the server and registering a password. It also encourages the usage of strong passwords by providing a copy-paste login command to the account owner.
+This bot is useful for automatically adding users to the whitelist without the need of admin intervention. It's primary use case is private Minecraft SMP's that are running in offline mode. This bot saves the time of admins and ensures that no one is able to break into someone's else's account in the gap between adding an account to the whitelist and the account owner joining the server and registering a password. It also encourages the usage of strong passwords by providing a copy-paste login command to the account owner. Moreover, it prevents multi accounting.
 
 ## How it works overview
 
@@ -16,8 +16,10 @@ This bot is useful for automatically adding users to the whitelist without the n
 6. Create an AuthME account for the user with a secure, random password
 7. Send that password via a DM to that user
 8. Save that user's discord account ID and the specified Minecraft nickname to json files in order to prevent multi-accounting and account duplicates
+9. Modify the discord server nickname for that user(for correlation between Discord and Minecraft)
+10. Grant the user a special *whitelisted* role on the discord server
 
-In between of all the steps, the bot logs some debugging info(saved in `bot.log` and `discord.log`) 
+In between of all the steps, the bot logs some debugging info(saved in `bot.log` and `discord.log` in `data` folder) 
 
 At the end the bot posts a short message in the created discord thread notifying of the success or failure in which case the user gets a message about the possible cause of the issue
 
@@ -43,6 +45,8 @@ Additionally, you need to provide the bot with the following using the .env file
 > RCON_PORT - specify the PORT of the Minecraft server's remote console
 > 
 > RCON_PASSWORD - specify the password of the Minecraft server's remote console
+> 
+> WHITELISTED_ROLE - specify the name of the role that's granted to whitelisted users
 
 An example `.env` file has been included
 
