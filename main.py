@@ -232,7 +232,7 @@ async def on_message(message):
         try:
             password = add_to_whitelist(discord_member, minecraft_username)
             await thread.send(f'Dodano **{minecraft_username}** do whitelisty!')
-            await discord_member.send(f'Aby zalogować się na swoje konto serwerowe, użyj komendy `/login {password}`. Możesz zmienić hasło używając komendy `/changepassword {password} <nowe hasło>` po zalogowaniu.')
+            await discord_member.send(f'Aby zalogować się na swoje konto serwerowe, użyj komendy `/login {password}`. Możesz zmienić hasło używając komendy `/account changePassword {password} nowe hasło` po zalogowaniu.')
             await message.add_reaction("✅")
         except DuplicateDiscordError:
             handler(f'{discord_member} has already added a username to the whitelist')
