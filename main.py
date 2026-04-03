@@ -258,7 +258,7 @@ async def on_message(message):
             await thread.send(f'Nie udało się dodać nicku do whitelisty! Skontaktuj się z Administratorem podając kod błędu: `FailedRCONError`')
             await message.add_reaction("❌")
             return
-        newnick=f'{discord_member.name[:15]}|{minecraft_username}'
+        newnick=f'{discord_member.global_name[:15]}|{minecraft_username}'
         handler(f'Changing the username of {discord_member} to {newnick}', "debug")
         try:
             await message.author.edit(nick=newnick)
